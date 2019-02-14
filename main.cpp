@@ -33,6 +33,7 @@ void TestSimple ()
 string_view fun(){
   string* str = new string("abcd");
   string_view sv(*str);
+  delete str;
   return sv;
 }
 int main ()
@@ -40,7 +41,7 @@ int main ()
   TestRunner tr;
   RUN_TEST (tr, TestSimple);
 
-//  cout << fun() << endl;
+  //cout << fun() << endl;
 
   return 0;
 }
