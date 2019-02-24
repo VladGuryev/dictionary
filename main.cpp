@@ -17,12 +17,13 @@ void TestSimple ()
 
   ASSERT_EQUAL(translator.TranslateForward("okno"), "window");
   ASSERT_EQUAL(translator.TranslateForward("stol"), "table");
+  ASSERT_EQUAL(translator.TranslateForward("table"), "");
+  ASSERT_EQUAL(translator.TranslateForward("window"), "");
+
   ASSERT_EQUAL(translator.TranslateBackward("table"), "stol");
   ASSERT_EQUAL(translator.TranslateBackward("window"), "okno");
   ASSERT_EQUAL(translator.TranslateBackward("stol"), "");
   ASSERT_EQUAL(translator.TranslateBackward("okno"), "");
-  ASSERT_EQUAL(translator.TranslateForward("window"), "");
-  ASSERT_EQUAL(translator.TranslateForward("table"), "");
 
   translator.Add (string ("stol"), string ("table2"));
   translator.Add (string ("stol"), string ("table3"));
@@ -36,12 +37,12 @@ string_view fun(){
   delete str;
   return sv;
 }
+
 int main ()
 {
   TestRunner tr;
   RUN_TEST (tr, TestSimple);
 
   //cout << fun() << endl;
-
   return 0;
 }

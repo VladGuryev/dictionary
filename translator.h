@@ -8,6 +8,7 @@
 #include <iostream>
 //#include <string_view>
 #include <deque>
+#include <iterator>
 
 using namespace std::experimental;
 using namespace std;
@@ -21,7 +22,6 @@ struct Entry{
   }
 };
 
-
 class Translator {
 public:
   Translator(){
@@ -30,47 +30,47 @@ public:
 
   }
   void Add(string_view source, string_view target) {
-    set<Entry>::iterator it = entries_f.find(Entry(source));
-    set<Entry>::iterator it2 = entries_b.find(Entry(target));
-    if(it != entries_f.end()){
-      entries_f.erase(it);
-    }
-    if(it2 != entries_b.end()){
-      entries_b.erase(it);
-    }
-
-    Entry* s = new Entry(source);
-    Entry* t = new Entry(target);
-    s->foreign = t;
-    t->foreign = s;
-    entries_f.insert(*s);
-    entries_b.insert(*t);
+    d_str.emplace_front(Entry(source));
+    d_str.emplace_back(Entry(target));
+    d_str.front().foreign = &d_str.back();
+    d_str.back().foreign = &d_str.front();
   }
   string_view TranslateForward(string_view source) const{
-   return extractString(source, entries_f);
+   return extractStringFor(source);
   }
   string_view TranslateBackward(string_view target) const{
-    return extractString(target, entries_b);
+    return extractStringBack(target);
   }
 
 private:
-   map<string*, string*> sources;
-   map<string*, string*> targets;
-   deque<string> d_str;
-   string_view extractString(string_view sv, set<Entry> entries) const;
-   set<Entry> entries_f;
-   set<Entry> entries_b;
+   deque<Entry> d_str;
+   string_view extractStringFor(string_view sv) const;
+   string_view extractStringBack(string_view sv) const;
 };
 
 
-string_view Translator::extractString(string_view sv,
-                                      set<Entry> entries) const{
-  auto it = entries.find(Entry(sv));
-  if(it == entries.end()){
-    return "";
-  } else {
-    return (*it).foreign->source;
+string_view Translator::extractStringFor(string_view sv) const{
+  string cmp(sv);
+  for(size_t i = 0; i < d_str.size() / 2 ; ++i){
+    if(d_str.at(i).source == cmp)
+      return d_str.at(i).foreign->source;
+    else
+     continue;
   }
+
+  return "";
+}
+
+string_view Translator::extractStringBack(string_view sv) const{
+  string cmp(sv);
+  for(size_t i = d_str.size() - 1; i > d_str.size() / 2 - 1 ; --i){
+    if(d_str.at(i).source == cmp)
+      return d_str.at(i).foreign->source;
+    else
+     continue;
+  }
+
+  return "";
 }
 
 #endif // TRANSLATOR_H
